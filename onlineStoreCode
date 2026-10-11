@@ -1,0 +1,211 @@
+#include<iostream>
+#include<iomanip>
+#include<vector>
+#include<string>
+
+using namespace std;
+class Product{
+	int itemId;
+	string itemName;
+	double itemPrice;
+	string description;
+	
+    public:
+    	Product(int id, string n, double ip, string des) {
+    		itemId = id;
+    		itemName = n;
+    		itemPrice = ip;
+    		description = des;
+		}
+		virtual ~Product() {}
+		
+		int getItemId() const {
+			return itemId;
+		}
+		
+		string getItemName() const {
+		return itemName;
+		}
+		
+		double getItemPrice() const {
+		return itemPrice;
+		}
+		
+		virtual void displayProduct() const{
+		//cout<<itemId<<"          | "<<itemName<<"   | "<<description<<endl;
+		cout<<left<<setw(3)<<itemId
+	    <<" | "<<setw(20)<<itemName
+	    <<" | Rs. "<<fixed<<setprecision(2)<<itemPrice
+        <<" | "<<description<<endl;
+		}
+};
+class Cart{
+	
+	Product* product;
+	int quantity;
+	double totalPrice;
+	
+	public:
+		Cart(Product* prod, int quan) {
+			product = prod;
+			quantity = quan;
+			totalPrice = product -> getItemPrice()* quantity;
+		}
+		
+		void increaseQuantity(int quan) {
+			quantity = quantity + quan;
+			totalPrice = product -> getItemPrice() * quantity;
+		}
+		Product* getProduct() const{
+		return product;
+		}
+		
+		int getQuantity() const{
+		return quantity;
+		}
+		
+		double getTotalPrice() const{
+		return totalPrice;
+		}
+		
+	 void displayCartItem() const{
+    cout<<left<<setw(3)<<product->getItemId()
+             <<"| "<<setw(20)<<product->getItemName()
+             <<"| Quantity:  "<<setw(3)<<quantity
+             <<"  | Price: Rs. "<<fixed<<setprecision(2)<< product->getItemPrice()
+             <<"| Total: Rs. "<<totalPrice<<endl;
+    }
+};
+
+class Store{
+	private:
+		vector<Product*> products;
+		vector<Cart*> cartItems;
+
+public:
+    Store() {
+        products.push_back(new Product(1, "Laptop", 80000, "    Dell i5"));
+        products.push_back(new Product(2, "Mouse", 1500, "     Wireless"));
+        products.push_back(new Product(3, "Keyboard", 3000, "     Mechanical"));
+        products.push_back(new Product(4, "Monitor", 25000, "    27 inch"));
+        products.push_back(new Product(5, "Headphones", 5000, "     Noise cancelling"));
+        products.push_back(new Product(6, "USB Hub", 2000, "     4 port"));
+        products.push_back(new Product(7, "Webcam", 4000, "     HD 1080p"));
+        products.push_back(new Product(8, "Phone Stand", 800, "      Metal stand"));
+        products.push_back(new Product(9, "Laptop Bag", 2500, "     Waterproof"));
+        products.push_back(new Product(10, "Power Bank", 3500, "     20000mAh"));
+    }
+    ~Store() {
+    	for(int i = 0; i<products.size(); i++) {
+    		delete products[i];
+		}
+		for(int i = 0; i<cartItems.size(); i++) {
+			delete cartItems[i];
+		}
+	}
+	void displayAllProducts() {
+		cout<<"=><= =><= =><= =><= =><= =><="<<endl;
+		cout<<"*   ONLINE SHOPPING STORE   *"<<endl;
+		cout<<"=><= =><= =><= =><= =><= =><="<<endl;
+		cout<<endl;
+		cout<<" ID |"<<"       Product        |"<<"     Price     |"<<"   Prodect Description  "<<endl;
+		
+		
+		
+		
+	
+		
+		for(int i = 0; i< products.size(); i++) {
+			products[i]->displayProduct();
+		}
+	}
+	bool addToCart(int id){
+		if(id < 1 || id>products.size()) {
+			cout<<"Invalid value"<<endl;
+			return false;
+		}
+		for(int i = 0; i < cartItems.size(); i++) {
+			if (cartItems[i]->getProduct()->getItemId() == id) {
+                cartItems[i]->increaseQuantity(1);
+                cout << "Quantity updated"<<endl;
+                return true;
+            }
+		}
+		
+		cartItems.push_back(new Cart(products[id - 1], 1));
+        cout << "Item added to cart"<<endl;
+        return true;
+	}
+	void displayCart() {
+		if(cartItems.size() == 0) {
+		cout<<"Your cart is empty"<<endl;
+		return;
+		}
+		cout<<"----Your Cart----"<<endl;
+		for (int i = 0; i < cartItems.size(); i++) {
+            cartItems[i]->displayCartItem();
+        }
+	}
+	void displayFinalBill(){
+		if(cartItems.size()==0){
+			cout<<"\n cart is empty! Nothing to checkout. "<<endl;
+			return;
+		}
+		
+		displayCart();
+		
+		double totalBill=0;
+		
+		cout<<"\n ---------- Bill ---------- "<<endl;
+		system("cls");
+		for(int i=0; i<cartItems.size(); i++){
+			cout<<left<<setw(50)<<cartItems[i]->getProduct()->getItemName()
+			<<"Rs. "<<fixed<<setprecision(2)<<cartItems[i]->getTotalPrice()<<endl;
+			totalBill += cartItems[i]->getTotalPrice();
+		}
+		
+		cout<<"\n Total: Rs. "<<fixed<<setprecision(2)<<totalBill<<endl;
+		cout<<"\n Thank you! Have a good day "<<endl;
+		
+		
+	}
+	
+	void runStore(){
+		int choice;
+		bool shopping = true;
+		
+		displayAllProducts();
+		
+		cout<<"\n---------- Menu ---------- "<<endl;
+		cout<<"1-10: Add product to cart "<<endl;
+		cout<<"11: view cart "<<endl;
+		cout<<"12: checkout & Bill "<<endl;
+		
+		while(shopping){
+			cout<<"Enter choice: ";
+			cin>>choice;
+			
+			if(choice >= 1 && choice <= 10){
+				addToCart(choice);
+			}
+			else if(choice==11){
+				displayCart();
+			}
+			else if(choice==12){
+				displayFinalBill();
+			
+			}
+			else{
+				cout<<"Invalid choice! Try 1-12 "<<endl;
+			}
+		}
+	}
+	
+	
+	
+};
+int main() {
+	Store store;
+	store.runStore();
+	return 0;	
+}
